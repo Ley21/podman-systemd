@@ -1,0 +1,7 @@
+galaxy_info:
+  role_name: podman-systemd
+  author: Andreas (ley) Heyert
+  description: Role to create systemd services for an pod and n containers
+  issue_tracker_url: https://github.com/Ley21/podman-systemd/issues
+  license: GPLv3
+  min_ansible_version: 2.8
