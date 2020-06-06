@@ -1,6 +1,7 @@
 - name: Set facts
   set_fact:
-    name: "{{ pod }}"
+    name: "{{ pod }}"  
+  failed_when: pod is not defined
 - name: "Disable stop service {{ name }}-pod.service"
   systemd:
     name: "{{ name }}-pod.service"

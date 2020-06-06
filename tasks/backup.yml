@@ -1,0 +1,44 @@
+- name: Stop all containers
+  systemd:
+    name: "{{ c.name }}-container.service"
+    state: stopped
+  ignore_errors: True
+  changed_when: false
+  no_log: True
+  with_items: "{{ containers }}"
+  when: execute_backup
+  loop_control:
+    loop_var: c
+- name: Ensure backup directory exits
+  file:
+      path: "{{ backup_path }}"
+      state: directory
+      mode: 0755
+      recurse: yes
+- name: Create script for backup of every volume
+  vars:
+    name: "{{ v.name }}"
+  template:
+    src: backup.j2
+    dest: "{{ backup_path }}/{{ name }}_backup.sh"
+    mode: a+x
+  with_items: "{{ volumes }}"
+  loop_control:
+    loop_var: v
+- name: Execute all backups
+  command: "bash {{ backup_path }}/{{ v.name }}_backup.sh"
+  with_items: "{{ volumes }}"
+  when: execute_backup
+  loop_control:
+    loop_var: v
+- name: Start all containers again
+  systemd:
+    name: "{{ item.name }}-container.service"
+    state: started
+  ignore_errors: True
+  changed_when: false
+  no_log: True
+  with_items: "{{ containers }}"
+  when: execute_backup
+  loop_control:
+    loop_var: c

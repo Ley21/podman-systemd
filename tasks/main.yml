@@ -1,17 +1,20 @@
 ---
-- name: collect facts about system services
-  service_facts:
-  register: services_state
+- name: Check if all variables are present
+  set_fact:
+    done: true
+  failed_when: 
+    - pod is not defined
+    - containers is not defined
 - name: Create volumes  
   vars:
     volume: "{{ item.name }}"
   include_tasks: volume.yml
   with_items: "{{ volumes }}"
+  when: volumes is defined
 - name: Create pod
-  include_tasks: pod.yml
+  include_tasks: pod.yml  
 - name: Create container
   vars:
     container: "{{ item }}"
-  include_tasks: container.yml
+  include_tasks: container.yml  
   with_items: "{{ containers }}"
-

@@ -1,1 +1,4 @@
 publish_arg: ""
+backup_path: "~/.podman-backups"
+backup_keep: 5
+execute_backup: False

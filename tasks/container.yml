@@ -5,6 +5,9 @@
     services: "{{ pod }}-pod.service"
     name: "{{ container.name }}"
     image: "{{ container.image }}"
+  failed_when:
+    - container.name is undefined
+    - container.image is undefined
 - name: "Disable stop service {{ name }}-container.service"
   systemd:
     name: "{{ name }}-container.service"

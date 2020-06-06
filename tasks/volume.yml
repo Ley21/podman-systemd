@@ -7,3 +7,7 @@
 - name: Create volume
   command: "podman volume create {{ volume }}"
   when: volume_config is search('Error')
+- name: Prepare backup scripts (execute if not first run)
+  vars:
+    execute_backup: "{{ volume_config is not search('Error') }}"
+  include_tasks: backup.yml

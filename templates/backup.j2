@@ -1,0 +1,3 @@
+#!/bin/bash
+rm `ls -td {{ name }}_*.bz2 | awk 'NR>{{ backup_keep }}'`
+podman run --rm -v {{ name }}:/volume -v {{ backup_path }}:/backup alpine tar -cjf /backup/{{ name }}_backup_$(date +%F_%R).bz2 -C /volume ./
