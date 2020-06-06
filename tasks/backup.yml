@@ -15,6 +15,17 @@
   with_items: "{{ volumes }}"
   loop_control:
     loop_var: v
+- name: Create restore script for volumes
+  vars:
+    name: "{{ v.name }}"
+    volume_containers: "{{ v.containers }}"
+  template:
+    src: restore.j2
+    dest: "{{ backup_path }}/{{ name }}_restore.sh"
+    mode: a+x
+  with_items: "{{ volumes }}"
+  loop_control:
+    loop_var: v
 - name: Execute all backups
   become: true
   command: "bash {{ backup_path }}/{{ v.name }}_backup.sh"

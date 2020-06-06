@@ -1,0 +1,8 @@
+#!/bin/bash
+{% for container_name in volume_containers %}
+systemctl stop {{ container_name }}-container.service
+{% endfor %}
+podman run --rm -v {{ name }}:/volume -v {{ backup_path }}:/backup alpine sh -c "rm -rf /volume/* /volume/..?* /volume/.[!.]* ; tar -C /volume/ -xjf /backup/$1"
+{% for container_name in volume_containers %}
+systemctl start {{ container_name }}-container.service
+{% endfor %}
