@@ -8,6 +8,10 @@
   failed_when:
     - container.name is undefined
     - container.image is undefined
+- name: Set addional commands
+  set_fact:
+    additional_args: "{{ container.args }}"
+  when: container.args is defined
 - name: "Disable stop service {{ name }}-container.service"
   systemd:
     name: "{{ name }}-container.service"
@@ -33,7 +37,7 @@
 - name: Deploy systemd service
   become: true
   vars:
-    args: "--pod {{ pod }} {{ env_args }} {{ volume_args }}"
+    args: "--pod {{ pod }} {{ env_args }} {{ volume_args }} {{ additional_args }}"
     description: "{{ name }}"
   template:
     src: systemd-container.j2

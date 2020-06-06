@@ -30,6 +30,8 @@
   become: true
   command: "bash {{ backup_path }}/{{ v.name }}_backup.sh"
   with_items: "{{ volumes }}"
-  when: execute_backup
+  when: 
+    - execute_backup
+    - volume_exist
   loop_control:
     loop_var: v
