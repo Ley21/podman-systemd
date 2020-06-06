@@ -1,0 +1,37 @@
+- name: Stop container service
+  become: true
+  systemd:
+    name: "{{ item.name }}-container.service"
+    state: stopped
+    enabled: false
+  ignore_errors: True
+  changed_when: false
+  no_log: True
+  with_items: "{{ containers }}"
+- name: "Disable stop service {{ pod }}-pod.service"
+  become: true
+  systemd:
+    name: "{{ pod }}-pod.service"
+    state: stopped
+    enabled: false
+  ignore_errors: True
+  changed_when: false
+  no_log: True
+- name: Remove systemd files for containers
+  become: true
+  file:
+    path: "/etc/systemd/system/{{ item.name }}-container.service"
+    state: absent
+  with_items: "{{ containers }}"
+- name: Remove systemd files for pod
+  become: true
+  file:
+    path: "/etc/systemd/system/{{ pod }}-pod.service"
+    state: absent
+- name: Remove volumes
+  become: true
+  command: "podman volume rm -f {{ item.name }}"
+  with_items: "{{ volumes }}"
+  ignore_errors: True
+  changed_when: false
+  no_log: True

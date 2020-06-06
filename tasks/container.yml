@@ -1,0 +1,59 @@
+- name: Set default facts
+  set_fact:
+    volume_args: ""
+    env_args: ""
+    services: "{{ pod }}-pod.service"
+    name: "{{ container.name }}"
+    image: "{{ container.image }}"
+- name: "Disable stop service {{ name }}-container.service"
+  systemd:
+    name: "{{ name }}-container.service"
+    state: stopped
+    enabled: false
+  ignore_errors: True
+  changed_when: false
+  no_log: True
+- name: Set volume args
+  set_fact:
+    volume_args: "{{ volume_args }} -v {{ v.name }}:{{ v.mount }} "
+  when: v.container == name
+  with_items: "{{ volumes }}"
+  loop_control:
+    loop_var: v
+- name: Set env args
+  set_fact:
+    env_args: "{{ env_args }} --env {{ e.name }}={{ e.value }} "
+  with_items: "{{ container.envs }}"
+  when: container.envs is defined
+  loop_control:
+    loop_var: e
+- name: Deploy systemd service
+  become: true
+  vars:
+    args: "--pod {{ pod }} {{ env_args }} {{ volume_args }}"
+    description: "{{ name }}"
+  template:
+    src: systemd-container.j2
+    dest: "/etc/systemd/system/{{ name }}-container.service"
+- name: Check depenancies
+  set_fact:
+    services: "{{ services }} {{ d }}-container.service "
+  with_items: "{{ container.dependencies }}"
+  when: container.dependencies is defined
+  loop_control:
+    loop_var: d
+- name: Add dependent services
+  become: true
+  blockinfile:
+    path: "/etc/systemd/system/{{ name }}-container.service"
+    insertafter: "^Description="
+    block: |
+      Wants={{ services }}
+      After={{ services }}
+- name: "Enable service {{ name }}-container.service"
+  become: true
+  systemd:
+    name: "{{ container.name }}-container.service"
+    state: started
+    enabled: true
+

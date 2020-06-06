@@ -1,0 +1,17 @@
+---
+- name: collect facts about system services
+  service_facts:
+  register: services_state
+- name: Create volumes  
+  vars:
+    volume: "{{ item.name }}"
+  include_tasks: volume.yml
+  with_items: "{{ volumes }}"
+- name: Create pod
+  include_tasks: pod.yml
+- name: Create container
+  vars:
+    container: "{{ item }}"
+  include_tasks: container.yml
+  with_items: "{{ containers }}"
+

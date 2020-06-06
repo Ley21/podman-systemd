@@ -1,0 +1,19 @@
+[Unit]
+Description={{ description }}
+
+[Service]
+Restart=on-failure
+ExecStartPre=-/usr/bin/podman pull {{ image }}
+ExecStartPre=-/usr/bin/podman rm -f {{ name }}
+ExecStart=/usr/bin/podman run \
+    --name {{ name }} \
+    --conmon-pidfile=/run/{{ name }}.pid \
+    --tty \
+    {{ args }} \
+    {{ image }}
+ExecStop=/usr/bin/podman rm -f {{ name }}
+KillMode=none
+PIDFile=/run/{{ name }}.pid
+
+[Install]
+WantedBy=multi-user.target

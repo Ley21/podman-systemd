@@ -1,0 +1,19 @@
+[Unit]
+Description={{ name }}
+After=network.target
+
+[Service]
+Type=forking
+Restart=on-failure
+ExecStartPre=-/usr/bin/podman pod rm -f {{ name }}
+ExecStart=/usr/bin/podman pod create \
+    --name {{ name }} \
+    {{ publish_arg }}
+ExecReload=-/usr/bin/podman pod stop {{ name }}
+ExecReload=-/usr/bin/podman pod rm -f {{ name }}
+RemainAfterExit=yes
+ExecStop=/usr/bin/podman pod rm -f {{ name }}
+KillMode=none
+
+[Install]
+WantedBy=multi-user.target

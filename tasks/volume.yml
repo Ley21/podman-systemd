@@ -1,0 +1,9 @@
+- name: Get volume state
+  shell: "podman volume inspect {{ volume }}"
+  register: volume_config
+  ignore_errors: True
+  changed_when: false
+  no_log: True
+- name: Create volume
+  command: "podman volume create {{ volume }}"
+  when: volume_config is search('Error')
