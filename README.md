@@ -47,6 +47,7 @@ containers:
   envs: # Optional
   - name: VARIABLE
     value: value_for
+  args: "-v ..." # Additional args for podman container (see podman run docu)
   dependencies: # Optional
   - databes # Other container which is dependent to work
 - ... # More containers
