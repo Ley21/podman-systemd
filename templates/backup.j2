@@ -1,3 +1,9 @@
 #!/bin/bash
+{% for container_name in volume_containers %}
+systemctl stop {{ container_name }}-container.service
+{% endfor %}
 rm `ls -td {{ name }}_*.bz2 | awk 'NR>{{ backup_keep }}'`
 podman run --rm -v {{ name }}:/volume -v {{ backup_path }}:/backup alpine tar -cjf /backup/{{ name }}_backup_$(date +%F_%R).bz2 -C /volume ./
+{% for container_name in volume_containers %}
+systemctl start {{ container_name }}-container.service
+{% endfor %}

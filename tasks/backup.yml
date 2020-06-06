@@ -1,14 +1,3 @@
-- name: Stop all containers
-  systemd:
-    name: "{{ c.name }}-container.service"
-    state: stopped
-  ignore_errors: True
-  changed_when: false
-  no_log: True
-  with_items: "{{ containers }}"
-  when: execute_backup
-  loop_control:
-    loop_var: c
 - name: Ensure backup directory exits
   file:
       path: "{{ backup_path }}"
@@ -18,6 +7,7 @@
 - name: Create script for backup of every volume
   vars:
     name: "{{ v.name }}"
+    volume_containers: "{{ v.containers }}"
   template:
     src: backup.j2
     dest: "{{ backup_path }}/{{ name }}_backup.sh"
@@ -26,19 +16,9 @@
   loop_control:
     loop_var: v
 - name: Execute all backups
+  become: true
   command: "bash {{ backup_path }}/{{ v.name }}_backup.sh"
   with_items: "{{ volumes }}"
   when: execute_backup
   loop_control:
     loop_var: v
-- name: Start all containers again
-  systemd:
-    name: "{{ item.name }}-container.service"
-    state: started
-  ignore_errors: True
-  changed_when: false
-  no_log: True
-  with_items: "{{ containers }}"
-  when: execute_backup
-  loop_control:
-    loop_var: c

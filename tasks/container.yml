@@ -19,7 +19,7 @@
 - name: Set volume args
   set_fact:
     volume_args: "{{ volume_args }} -v {{ v.name }}:{{ v.mount }} "
-  when: v.container == name
+  when: name in v.containers
   with_items: "{{ volumes }}"
   loop_control:
     loop_var: v
